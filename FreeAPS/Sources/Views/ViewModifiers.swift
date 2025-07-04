@@ -51,13 +51,24 @@ struct CarveOrDrop: ViewModifier {
     }
 }
 
-struct InfoPanelBackground: View {
-    let colorScheme: ColorScheme
-    var body: some View {
-        Rectangle()
-            .stroke(.gray, lineWidth: 2)
-            .fill(colorScheme == .light ? .white : .black)
-            .frame(height: 24)
+struct ScrollTargetLayoutModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 17, *) {
+            return content
+                .scrollTargetLayout()
+        } else {
+            return content }
+    }
+}
+
+struct ScrollPositionModifier: ViewModifier {
+    @Binding var id: Int?
+    func body(content: Content) -> some View {
+        if #available(iOS 17, *) {
+            return content
+                .scrollPosition(id: $id)
+        } else {
+            return content }
     }
 }
 
@@ -66,7 +77,7 @@ struct AddShadow: ViewModifier {
     func body(content: Content) -> some View {
         content
             .shadow(
-                color: Color.black
+                color: Color.white
                     .opacity(
                         colorScheme == .dark ? IAPSconfig.shadowOpacity : IAPSconfig.shadowOpacity / IAPSconfig
                             .shadowFraction
@@ -79,7 +90,7 @@ struct AddShadow: ViewModifier {
 struct RaisedRectangle: View {
     @Environment(\.colorScheme) var colorScheme
     var body: some View {
-        Rectangle().fill(colorScheme == .dark ? .black : .white)
+        Rectangle().fill(colorScheme == .dark ? .white : .white)
             .frame(height: 1)
             .addShadows()
     }
@@ -108,7 +119,7 @@ struct TestTube: View {
                 FrostedGlass(opacity: materialOpacity)
             }
             .shadow(
-                color: Color.black
+                color: Color.white
                     .opacity(
                         colorScheme == .dark ? IAPSconfig.glassShadowOpacity : IAPSconfig.glassShadowOpacity / IAPSconfig
                             .shadowFraction
@@ -123,104 +134,6 @@ struct FrostedGlass: View {
     var body: some View {
         UnevenRoundedRectangle.testTube
             .fill(.ultraThinMaterial.opacity(opacity))
-    }
-}
-
-struct ColouredRoundedBackground: View {
-    @Environment(\.colorScheme) var colorScheme
-    var body: some View {
-        Rectangle()
-            .fill(
-                colorScheme == .dark ? IAPSconfig.previewBackgroundDark :
-                    IAPSconfig.previewBackgroundLight
-            )
-    }
-}
-
-struct ColouredBackground: View {
-    @Environment(\.colorScheme) var colorScheme
-    var body: some View {
-        Rectangle()
-            .fill(
-                colorScheme == .dark ? IAPSconfig.chartBackgroundDark :
-                    IAPSconfig.chartBackgroundLight
-            )
-    }
-}
-
-struct LoopEllipse: View {
-    @Environment(\.colorScheme) var colorScheme
-    let stroke: Color
-    var body: some View {
-        RoundedRectangle(cornerRadius: 15)
-            .stroke(stroke, lineWidth: colorScheme == .light ? 2 : 1)
-            .background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(colorScheme == .light ? .white : .black)
-            )
-    }
-}
-
-struct Sage: View {
-    @Environment(\.colorScheme) var colorScheme
-    let amount: Double
-    let expiration: Double
-    var body: some View {
-        let fill = max(amount / expiration, 0.07)
-        let colour: Color = amount <= 8.64E4 ? .red.opacity(0.9) : amount <= 2 * 8.64E4 ? .orange
-            .opacity(0.8) : colorScheme == .light ? .white.opacity(0.7) : .black.opacity(0.8)
-        RoundedRectangle(cornerRadius: 15)
-            .stroke(colorScheme == .dark ? Color(.systemGray2) : Color(.systemGray6), lineWidth: 2)
-            .background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(stops: [
-                                Gradient.Stop(
-                                    color: colour,
-                                    location: fill
-                                ),
-                                Gradient.Stop(color: Color.clear, location: fill)
-                            ]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-            )
-    }
-}
-
-struct TimeEllipse: View {
-    let characters: Int
-    var body: some View {
-        RoundedRectangle(cornerRadius: 15)
-            .fill(Color.gray).opacity(0.2)
-            .frame(width: CGFloat(characters * 7), height: 25)
-    }
-}
-
-struct HeaderBackground: View {
-    @Environment(\.colorScheme) var colorScheme
-    var body: some View {
-        Rectangle()
-            .fill(
-                colorScheme == .light ? IAPSconfig.headerBackgroundLight : IAPSconfig.headerBackgroundDark
-            )
-    }
-}
-
-struct ClockOffset: View {
-    let mdtPump: Bool
-    var body: some View {
-        ZStack {
-            Image(systemName: "clock.fill")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxHeight: 20)
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(Color(.warning))
-                .offset(x: !mdtPump ? 10 : 12, y: !mdtPump ? -20 : -22)
-        }
     }
 }
 
@@ -266,12 +179,156 @@ struct TooOldValue: View {
     }
 }
 
-struct ChartBackground: ViewModifier {
-    @Environment(\.colorScheme) var colorScheme
+// Atrium Lights START
 
+extension Color {
+    static let NorthernLights = Color(red: 0.50, green: 1.00, blue: 0.00)
+}
+
+// Atrium Lights ENDE
+
+extension Color {
+    static let rig22Background = Color(red: 0.10, green: 0.10, blue: 0.10)
+}
+
+extension Color {
+    static let rig22BGGlucoseWheel = Color(red: 0.17, green: 0.21, blue: 0.24)
+}
+
+extension Color {
+    static let iconColor = (red: 0.49, green: 0.55, blue: 0.96, alpha: 1.00)
+}
+
+extension Color {
+    static let connectionStatusOff = Color(red: 1.00, green: 0.00, blue: 0.00)
+}
+
+extension Color {
+    static let connectionStatusConnected = Color(red: 0.00, green: 1.00, blue: 0.00)
+}
+
+struct ColouredRoundedBackground: View {
+    var body: some View {
+        Rectangle() // Oder RoundedRectangle für gerundete Ecken
+            .fill(Color.rig22Background)
+    }
+}
+
+/* struct ColouredRoundedBackground: View {
+  @Environment(\.colorScheme) var colorScheme
+  var body: some View {
+      Rectangle()
+          .fill(
+              colorScheme == .dark ? IAPSconfig.previewBackgroundDark :
+                  IAPSconfig.previewBackgroundLight
+          )
+  }
+ } */
+
+struct addColouredBackground: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 15)
+            .fill(Color.rig22Background)
+        // .shadow(color: Color.black.opacity(0.5), radius: 10, x: 5, y: 5) // Kräftigerer Schatten
+    }
+}
+
+/* struct ColouredBackground: View {
+     var body: some View {
+         RoundedRectangle(cornerRadius: 10)
+             .fill(Color.rig22Background)
+             // .fill(Color.darkGray.opacity(1.0))
+             .shadow(color: Color.black.opacity(0.3), radius: 5, x: 5, y: 5)
+             .shadow(color: Color.black.opacity(0.3), radius: 10, x: 3, y: 3)
+     }
+ } */
+
+struct ColouredBackground: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 10)
+            .fill(Color.black.opacity(0.3))
+    }
+}
+
+/* struct ColouredBackground: View {
+  @Environment(\.colorScheme) var colorScheme
+  var body: some View {
+      Rectangle()
+          .fill(
+              colorScheme == .dark ? IAPSconfig.chartBackgroundDark :
+                  IAPSconfig.chartBackgroundLight
+          )
+  }
+ } */
+
+struct ColouredBackground2: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 15)
+            .fill(Color.clear)
+    }
+}
+
+struct LoopEllipse: View {
+    @Environment(\.colorScheme) var colorScheme
+    let stroke: Color
+    var body: some View {
+        RoundedRectangle(cornerRadius: 15)
+            .stroke(stroke, lineWidth: colorScheme == .light ? 2 : 1)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.rig22Background)
+            )
+    }
+}
+
+extension View {
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
+struct HeaderBackground: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.rig22Background)
+    }
+}
+
+/* struct HeaderBackground: View {
+  @Environment(\.colorScheme) var colorScheme
+  var body: some View {
+      Rectangle()
+          .fill(
+              colorScheme == .light ? IAPSconfig.headerBackgroundLight : IAPSconfig.headerBackgroundDark
+          )
+  }
+ } */
+
+struct ClockOffset: View {
+    let mdtPump: Bool
+    var body: some View {
+        ZStack {
+            Image(systemName: "clock.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxHeight: 20)
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(Color(.warning))
+                .offset(x: 10, y: !mdtPump ? -20 : -13)
+        }
+    }
+}
+
+struct ChartBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(colorScheme == .light ? .gray.opacity(0.05) : .black).brightness(colorScheme == .dark ? 0.05 : 0)
+            .background(
+                Color.rig22Background
+            )
     }
 }
 
@@ -334,25 +391,25 @@ extension View {
         modifier(RoundedBackground())
     }
 
-    func addShadows() -> some View {
-        modifier(AddShadow())
-    }
-
     func carvingOrRelief(carve: Bool) -> some View {
         modifier(CarveOrDrop(carve: carve))
     }
 
-    func boolTag(_ bool: Bool) -> some View {
-        modifier(BoolTag(bool: bool))
+    func addShadows() -> some View {
+        modifier(AddShadow())
     }
 
     func addBackground() -> some View {
         ColouredRoundedBackground()
     }
 
-    func addColouredBackground() -> some View {
-        ColouredBackground()
+    func boolTag(_ bool: Bool) -> some View {
+        modifier(BoolTag(bool: bool))
     }
+
+    /*  func addColouredBackground() -> some View {
+         ColouredBackground()
+     }*/
 
     func addHeaderBackground() -> some View {
         HeaderBackground()
@@ -380,38 +437,65 @@ extension View {
         modifier(CompactSectionSpacing())
     }
 
+    func scrollTargetLayoutiOS17() -> some View {
+        modifier(ScrollTargetLayoutModifier())
+    }
+
+    func scrollPositioniOS17(id: Binding<Int?>) -> some View {
+        modifier(ScrollPositionModifier(id: id))
+    }
+
     func asAny() -> AnyView { .init(self) }
 }
 
 extension UnevenRoundedRectangle {
     static let testTube =
         UnevenRoundedRectangle(
-            topLeadingRadius: 1.5,
+            topLeadingRadius: 50,
             bottomLeadingRadius: 50,
             bottomTrailingRadius: 50,
-            topTrailingRadius: 1.5
+            topTrailingRadius: 50
         )
 }
 
+// BlinkingModifier
+struct BlinkingModifier: ViewModifier {
+    let shouldBlink: Bool
+    @State private var isBlinking = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shouldBlink ? (isBlinking ? 0.3 : 1) : 1)
+            .onAppear { startAnimation() }
+            .onChange(of: shouldBlink) { // Neue iOS 17 Syntax
+                startAnimation()
+            }
+    }
+
+    private func startAnimation() {
+        isBlinking = false
+        guard shouldBlink else { return }
+
+        withAnimation(
+            Animation.easeInOut(duration: 0.8)
+                .repeatForever(autoreverses: true)
+        ) {
+            isBlinking = true
+        }
+    }
+}
+
 extension UIImage {
-    /// Code suggested by Mamad Farrahi, but slightly modified.
     func fillImageUpToPortion(color: Color, portion: Double) -> Image {
         let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        UIGraphicsBeginImageContextWithOptions(size, false, scale)
-        draw(in: rect)
-        let context = UIGraphicsGetCurrentContext()!
-        context.setBlendMode(CGBlendMode.sourceIn)
-        context
-            .setFillColor(
-                color.cgColor ?? UIColor(portion > 0.75 ? .red.opacity(0.8) : .insulin.opacity(portion <= 3 ? 0.8 : 1))
-                    .cgColor
-            )
-        let height: CGFloat = 1 - portion
-        let rectToFill = CGRect(x: 0, y: size.height * portion, width: size.width, height: size.height * height)
-        context.fill(rectToFill)
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        return Image(uiImage: newImage!)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { context in
+            draw(in: rect)
+            let height: CGFloat = 1 - portion
+            let rectToFill = CGRect(x: 0, y: size.height * portion, width: size.width, height: size.height * height)
+            UIColor(color).setFill()
+            context.fill(rectToFill, blendMode: .sourceIn)
+        }
+        return Image(uiImage: image)
     }
 }

@@ -60,7 +60,7 @@ platform :ios do
     increment_build_number(
       xcodeproj: "#{GITHUB_WORKSPACE}/FreeAPS.xcodeproj",
       build_number: current_build_number
-    )
+    )      
     
     match(
       type: "appstore",
